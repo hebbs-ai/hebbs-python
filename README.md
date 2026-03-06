@@ -4,6 +4,8 @@
 
 # HEBBS
 
+> **HEBBS is under active development.** If you'd like to use it now, please reach out: [Quick chat with the founder](https://buxo.ai/parag/hebbsai-quick-chat-with-founder)
+
 **The memory engine for AI agents.** One binary. Sub-10ms recall. Agents that actually learn.
 
 HEBBS is a memory primitive purpose-built for AI agents. It replaces the patchwork of vector databases, key-value stores, and graph databases that agent developers cobble together today with a single, fast, embeddable engine.

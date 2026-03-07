@@ -1,0 +1,30 @@
+---
+title: Health & Metrics
+description: Monitor HEBBS with health endpoints and Prometheus metrics.
+---
+
+## Health Endpoint
+
+Check server health at `/v1/health`:
+
+```bash
+curl http://localhost:6381/v1/health
+```
+
+Returns status and basic readiness information.
+
+## Metrics Endpoint
+
+Prometheus-compatible metrics are exposed at `/v1/metrics`:
+
+```bash
+curl http://localhost:6381/v1/metrics
+```
+
+## Key Metric Names
+
+This section will document the key metric names emitted by HEBBS, including:
+
+- Latency histograms for store, recall, and other operations
+- Gauges for memory count, index size, and resource usage
+- Counters for request volume and error rates

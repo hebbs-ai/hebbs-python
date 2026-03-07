@@ -1,0 +1,97 @@
+---
+title: Quickstart
+description: Install HEBBS, start the server, and store your first memory in under 5 minutes.
+---
+
+Get HEBBS running and store your first memory in under 5 minutes.
+
+## 1. Install
+
+Install the HEBBS binary using the curl installer:
+
+```bash
+curl -sSf https://hebbs.ai/install | sh
+```
+
+The installer downloads `hebbs-server`, `hebbs-cli`, and `hebbs-bench` to `~/.hebbs/bin`.
+
+Add the install directory to your PATH:
+
+```bash
+export PATH="$HOME/.hebbs/bin:$PATH"
+```
+
+To make this permanent, add that line to your `~/.zshrc` or `~/.bashrc`.
+
+Verify the install:
+
+```bash
+hebbs-server --version
+hebbs-cli --version
+```
+
+## 2. Start the Server
+
+Start the HEBBS server with default settings (gRPC on port 6380, HTTP on port 6381):
+
+```bash
+hebbs-server
+```
+
+In a new terminal, verify it's running:
+
+```bash
+curl http://localhost:6381/v1/health
+```
+
+HEBBS runs with sensible defaults. To customize ports, storage, embedding models, or enable reflection, see the [Configuration Reference](/server/configuration/).
+
+## 3. Store a Memory
+
+Use the CLI to store your first memory:
+
+```bash
+hebbs-cli remember "Met with the Acme Corp team about Q2 roadmap."
+```
+
+## 4. Recall It
+
+Recall the memory using a natural language cue:
+
+```bash
+hebbs-cli recall "Acme meeting"
+```
+
+## 5. Try the Python SDK
+
+Install the Python SDK:
+
+```bash
+pip install hebbs
+```
+
+```python
+import asyncio
+from hebbs import HebbsClient
+
+async def main():
+    async with HebbsClient("localhost:6380") as client:
+        mem = await client.remember(
+            content="My first memory from Python!",
+            importance=0.8,
+        )
+        print(f"Stored memory: {mem.id}")
+
+        results = await client.recall("first memory", strategies=["similarity"])
+        for r in results.results:
+            print(f"  [{r.score:.2f}] {r.memory.content}")
+
+asyncio.run(main())
+```
+
+## What's Next
+
+- [Key Concepts](/getting-started/key-concepts/) -- understand memories, importance, entities, and recall strategies
+- [CLI Commands](/cli/commands/) -- explore all CLI operations
+- [Python SDK Reference](/python/client-reference/) -- full client API
+- [API Reference](/api/overview/) -- all 9 operations via gRPC and REST

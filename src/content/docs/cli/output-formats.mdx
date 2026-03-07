@@ -1,0 +1,125 @@
+---
+title: "Output Formats"
+description: "Control CLI output: human, JSON, and raw formats."
+---
+
+The HEBBS CLI supports three output formats, controlled by the `--format` flag or the `HEBBS_FORMAT` environment variable.
+
+## Human (default)
+
+Formatted for terminal readability with colors, tables, and aligned columns:
+
+```bash
+hebbs-cli recall --entity customer-42 --query "contact preferences"
+```
+
+```
+ # │ Score │ Content                          │ Kind     │ Created
+───┼───────┼──────────────────────────────────┼──────────┼────────────────
+ 1 │ 0.943 │ Customer prefers email over phone │ episodic │ 2025-01-15 14:32
+ 2 │ 0.871 │ Follows up weekly via newsletter  │ semantic │ 2025-01-14 09:15
+
+2 memories recalled in 4.2ms
+```
+
+Human format is the default and is designed for interactive use. It automatically detects terminal width and truncates long content.
+
+## JSON
+
+Machine-readable JSON output for scripting and pipeline integration:
+
+```bash
+hebbs-cli recall --entity customer-42 --query "contact preferences" --format json
+```
+
+```json
+{
+  "memories": [
+    {
+      "id": "mem_abc123",
+      "content": "Customer prefers email over phone",
+      "score": 0.943,
+      "kind": "episodic",
+      "entity": "customer-42",
+      "created_at": "2025-01-15T14:32:00Z"
+    },
+    {
+      "id": "mem_def456",
+      "content": "Follows up weekly via newsletter",
+      "score": 0.871,
+      "kind": "semantic",
+      "entity": "customer-42",
+      "created_at": "2025-01-14T09:15:00Z"
+    }
+  ],
+  "strategy": "similarity",
+  "latency_ms": 4.2
+}
+```
+
+### Piping to jq
+
+JSON format pairs well with `jq` for extraction and transformation:
+
+```bash
+# Extract just the content from recall results
+hebbs-cli recall --entity customer-42 --query "plans" --format json \
+  | jq -r '.memories[].content'
+
+# Count memories
+hebbs-cli recall --entity customer-42 --query "all" --format json \
+  | jq '.memories | length'
+
+# Filter by score threshold
+hebbs-cli recall --entity customer-42 --query "plans" --format json \
+  | jq '.memories[] | select(.score > 0.9)'
+```
+
+## Raw
+
+Minimal output with one value per line, no headers or decoration. Useful for piping into other commands:
+
+```bash
+hebbs-cli recall --entity customer-42 --query "contact preferences" --format raw
+```
+
+```
+Customer prefers email over phone
+Follows up weekly via newsletter
+```
+
+### Use Cases for Raw Format
+
+```bash
+# Feed recall results into another command
+hebbs-cli recall --entity customer-42 --query "notes" --format raw | wc -l
+
+# Store memory IDs for batch operations
+hebbs-cli recall --entity customer-42 --query "outdated" --format raw \
+  | hebbs-cli forget --entity customer-42 --ids -
+```
+
+## Setting a Default Format
+
+### Environment Variable
+
+```bash
+export HEBBS_FORMAT=json
+```
+
+### Config File
+
+In `~/.config/hebbs/config.toml`:
+
+```toml
+format = "json"
+```
+
+### REPL
+
+In the interactive REPL, use the `.format` dot-command:
+
+```
+hebbs> .format json
+Output format set to: json
+```

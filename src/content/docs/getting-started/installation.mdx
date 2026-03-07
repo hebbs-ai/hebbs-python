@@ -1,0 +1,89 @@
+---
+title: Installation
+description: "All ways to install HEBBS: curl installer, Docker, from source."
+---
+
+## Quick Install (curl)
+
+Install the latest release with a single command:
+
+```bash
+curl -sSf https://hebbs.ai/install | sh
+```
+
+This downloads `hebbs-server`, `hebbs-cli`, and `hebbs-bench` to `~/.hebbs/bin`.
+
+Add the install directory to your PATH:
+
+```bash
+export PATH="$HOME/.hebbs/bin:$PATH"
+```
+
+To make this permanent, add that line to your `~/.zshrc`, `~/.bashrc`, or `~/.profile`.
+
+Verify the install:
+
+```bash
+hebbs-server --version
+hebbs-cli --version
+```
+
+### Install Options
+
+Pin a specific version:
+
+```bash
+HEBBS_VERSION=v0.1.0 curl -sSf https://hebbs.ai/install | sh
+```
+
+Change the install directory:
+
+```bash
+HEBBS_INSTALL_DIR=/usr/local/bin curl -sSf https://hebbs.ai/install | sh
+```
+
+### Supported Platforms
+
+| Platform | Architecture | Binary |
+|----------|-------------|--------|
+| macOS | Apple Silicon (arm64) | `hebbs-macos-arm64` |
+| Linux | x86_64 | `hebbs-linux-x86_64` |
+| Linux | aarch64 | `hebbs-linux-aarch64` |
+
+## Docker
+
+Run HEBBS in a container:
+
+```bash
+docker run -p 6380:6380 -p 6381:6381 ghcr.io/hebbs-ai/hebbs:latest
+```
+
+With persistent storage:
+
+```bash
+docker run -p 6380:6380 -p 6381:6381 \
+  -v hebbs-data:/data \
+  ghcr.io/hebbs-ai/hebbs:latest
+```
+
+## Build from Source
+
+Prerequisites: Rust 1.75+, protoc (Protocol Buffers compiler).
+
+```bash
+git clone https://github.com/hebbs-ai/hebbs.git
+cd hebbs
+cargo build --release
+```
+
+Binaries are output to `target/release/`:
+
+```bash
+./target/release/hebbs-server --version
+./target/release/hebbs-cli --version
+```
+
+## What's Next
+
+- [Quickstart](/getting-started/quickstart/) -- start the server and store your first memory in under 5 minutes
+- [Configuration](/server/configuration/) -- customize ports, storage, embedding models, reflection, and more

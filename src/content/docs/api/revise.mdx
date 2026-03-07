@@ -1,0 +1,38 @@
+---
+title: revise
+description: Update a memory's content, importance, or context while preserving history.
+---
+
+## Overview
+
+The `revise` operation updates an existing memory. Instead of overwriting in place, HEBBS creates a new Revision-kind memory that supersedes the original. The predecessor is retained for lineage but is no longer returned by default recall. This preserves audit trails and supports "what changed" queries.
+
+## API Access
+
+| Protocol | Service/Method | Endpoint |
+|----------|----------------|----------|
+| **gRPC** | `MemoryService.Revise` | — |
+| **REST** | PUT | `/v1/memories/{id}` |
+
+## Request Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `memory_id` | string | Yes | ID of the memory to revise. |
+| `content` | string | No | New content. Omitted fields retain previous values. |
+| `importance` | float | No | New importance score (0.0–1.0). |
+| `context` | map | No | New or merged context. Behavior is merge-by-key unless replace semantics specified. |
+
+## Predecessor Snapshot Semantics
+
+When you call `revise`, the system:
+
+1. Loads the current memory (predecessor).
+2. Applies the requested changes.
+3. Creates a new memory with `kind: Revision` and a `RevisedFrom` edge to the predecessor.
+4. Marks the predecessor as superseded (excluded from default recall).
+5. Returns the new memory as the canonical version.
+
+## Response
+
+Returns the updated `Memory` object (the new Revision), with `id`, `content`, `importance`, `context`, `edges` (including `RevisedFrom`), `created_at`, `updated_at`, and `kind: Revision`.

@@ -1,0 +1,149 @@
+---
+title: "Multi-Strategy Recall"
+description: "Compare all four recall strategies on the same dataset."
+---
+
+HEBBS provides four recall strategies, each optimized for a different access pattern. This cookbook ingests a sample dataset and queries it with all four strategies to illustrate their strengths.
+
+## Sample Dataset
+
+We'll create a set of interconnected memories representing a sales engagement:
+
+```python
+import asyncio
+from hebbs import HebbsClient, MemoryKind, Edge, EdgeType
+
+async def ingest_sample_data(client):
+    entity = "demo-multi-strategy"
+
+    m1 = await client.remember(
+        content="Initial discovery call with Acme Corp. They need a CRM solution.",
+        entity=entity, kind=MemoryKind.EPISODIC,
+    )
+
+    m2 = await client.remember(
+        content="Acme's current CRM is Salesforce but they're unhappy with pricing.",
+        entity=entity, kind=MemoryKind.SEMANTIC,
+        edges=[Edge(target_id=m1.id, edge_type=EdgeType.PRECEDED_BY, weight=1.0)],
+    )
+
+    m3 = await client.remember(
+        content="Sent proposal to Acme. $200K annual license.",
+        entity=entity, kind=MemoryKind.EPISODIC,
+        edges=[Edge(target_id=m2.id, edge_type=EdgeType.CAUSED_BY, weight=0.9)],
+    )
+
+    m4 = await client.remember(
+        content="Acme pushed back on pricing. Asked for 20% discount.",
+        entity=entity, kind=MemoryKind.EPISODIC,
+        edges=[Edge(target_id=m3.id, edge_type=EdgeType.CAUSED_BY, weight=1.0)],
+    )
+
+    m5 = await client.remember(
+        content="Price sensitivity in enterprise CRM deals correlates with contract length.",
+        entity=entity, kind=MemoryKind.SEMANTIC,
+    )
+
+    return entity
+```
+
+## Strategy 1: Similarity
+
+Finds memories whose content is semantically closest to the query.
+
+```python
+results = await client.recall(
+    query="What pricing concerns does Acme have?",
+    entity=entity,
+    strategy="similarity",
+    top_k=5,
+)
+
+print("SIMILARITY RECALL:")
+for r in results.memories:
+    print(f"  [{r.score:.3f}] {r.memory.content}")
+```
+
+**Best for:** General-purpose queries where you want the most semantically relevant memories regardless of time or causality.
+
+## Strategy 2: Temporal
+
+Returns memories ordered by time proximity — most recent first or closest to a reference time.
+
+```python
+results = await client.recall(
+    query="What happened most recently with Acme?",
+    entity=entity,
+    strategy="temporal",
+    top_k=5,
+)
+
+print("TEMPORAL RECALL:")
+for r in results.memories:
+    print(f"  [{r.memory.created_at}] {r.memory.content}")
+```
+
+**Best for:** "What happened recently?" or "What was the sequence of events?"
+
+## Strategy 3: Causal
+
+Follows `CausedBy` edges to trace chains of cause and effect.
+
+```python
+results = await client.recall(
+    query="What led to the pricing pushback?",
+    entity=entity,
+    strategy="causal",
+    top_k=5,
+)
+
+print("CAUSAL RECALL:")
+for r in results.memories:
+    print(f"  [{r.score:.3f}] {r.memory.content}")
+```
+
+**Best for:** Understanding why something happened, tracing decision chains, root cause analysis.
+
+## Strategy 4: Analogical
+
+Finds patterns across different contexts — memories that are structurally or thematically similar even if the surface-level content differs.
+
+```python
+results = await client.recall(
+    query="Have we seen similar pricing dynamics in other deals?",
+    entity=entity,
+    strategy="analogical",
+    top_k=5,
+)
+
+print("ANALOGICAL RECALL:")
+for r in results.memories:
+    print(f"  [{r.score:.3f}] {r.memory.content}")
+```
+
+**Best for:** Cross-domain pattern recognition, learning from similar past experiences.
+
+## Side-by-Side Comparison
+
+```python
+query = "Tell me about the pricing situation"
+
+for strategy in ["similarity", "temporal", "causal", "analogical"]:
+    results = await client.recall(
+        query=query, entity=entity, strategy=strategy, top_k=3,
+    )
+    print(f"\n{strategy.upper()}:")
+    for r in results.memories:
+        print(f"  [{r.score:.3f}] {r.memory.content[:60]}...")
+    print(f"  Latency: {results.latency_ms:.1f}ms")
+```
+
+## Choosing the Right Strategy
+
+| Scenario | Recommended Strategy |
+|---|---|
+| "Find relevant context for this question" | Similarity |
+| "What happened recently?" | Temporal |
+| "Why did this happen?" | Causal |
+| "Have we seen this pattern before?" | Analogical |
+| "Give me everything relevant" | Similarity (broadest) |

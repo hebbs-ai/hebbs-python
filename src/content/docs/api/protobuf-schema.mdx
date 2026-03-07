@@ -1,0 +1,30 @@
+---
+title: Protobuf Schema
+description: Complete Protocol Buffers schema reference for HEBBS gRPC API.
+---
+
+## Overview
+
+The HEBBS gRPC API is defined in `hebbs.proto`. The schema defines services, messages, and RPC methods. Use this reference when generating client stubs or implementing custom integrations.
+
+## Services
+
+| Service | Description |
+|---------|-------------|
+| **MemoryService** | Write and read operations: Remember, Recall, Revise, Forget, Prime. |
+| **SubscribeService** | Bidirectional streaming for real-time memory push. |
+| **ReflectService** | Reflection pipeline: Reflect, GetInsights, policy configuration. |
+| **HealthService** | Liveness, readiness, and metrics. |
+
+## Schema Location
+
+The canonical schema file is `hebbs.proto` in the HEBBS repository (`hebbs/proto/` or equivalent). Regenerate clients with:
+
+```bash
+protoc --go_out=. --go-grpc_out=. hebbs.proto
+# or equivalent for your language
+```
+
+## Full Schema Listing
+
+(Placeholder: Full schema listing will be generated from `hebbs.proto` or linked to the source file. Key message types include: `Memory`, `RememberRequest`, `RememberResponse`, `RecallRequest`, `RecallResponse`, `ReviseRequest`, `ForgetRequest`, `ForgetResponse`, `PrimeRequest`, `PrimeResponse`, `SubscribeRequest`, `SubscribePush`, `ReflectRequest`, `ReflectResponse`, `GetInsightsRequest`, `GetInsightsResponse`, and health-related messages.)

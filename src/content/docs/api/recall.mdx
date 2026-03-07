@@ -1,0 +1,50 @@
+---
+title: recall
+description: Retrieve memories using one or more recall strategies.
+---
+
+## Overview
+
+The `recall` operation retrieves memories by cue, applying one or more strategies. Strategies can be combined: similarity search finds semantically related content; temporal finds recent or time-ordered memories; causal traverses graph edges; analogical finds structurally similar patterns.
+
+## API Access
+
+| Protocol | Service/Method | Endpoint |
+|----------|----------------|----------|
+| **gRPC** | `MemoryService.Recall` | — |
+| **REST** | POST | `/v1/memories/recall` |
+
+## Request Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `cue` | string | Yes | Query text or context used to drive retrieval. |
+| `strategies` | array | Yes | One or more strategy configs: `similarity`, `temporal`, `causal`, `analogical`. |
+| `top_k` | int | No | Maximum number of results per strategy (default 10). |
+| `entity_id` | string | No | Scope recall to this entity. |
+| `scoring_weights` | map | No | Per-strategy weight for blending results (e.g., `{"similarity": 0.6, "temporal": 0.4}`). |
+
+## Response
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `results` | array | Each result: `memory`, `score`, `strategy_details`. |
+| `strategy_errors` | array | Optional errors from individual strategies (e.g., causal graph empty). |
+
+## Strategy Configuration
+
+### similarity
+
+Embedding-based semantic search. Uses HNSW index. Config: `ef_search` (search quality), `top_k`.
+
+### temporal
+
+Time-ordered retrieval. Config: `direction` (forward/backward), `anchor` (timestamp or "now"), `window_seconds`.
+
+### causal
+
+Graph traversal from seed memories. Config: `seed_memory_ids`, `max_depth`, `edge_types`.
+
+### analogical
+
+Structural pattern matching. Config: `template`, `top_k`.

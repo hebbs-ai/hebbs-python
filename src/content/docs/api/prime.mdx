@@ -1,0 +1,35 @@
+---
+title: prime
+description: Pre-load session context by entity, blending temporal and similarity recall.
+---
+
+## Overview
+
+The `prime` operation pre-loads session context for an entity. It blends recent (temporal) memories with semantically relevant (similarity) memories, giving an agent a ready-made context window at session start. Use `prime` when initializing a conversation or task so the agent has immediate access to relevant history without a separate recall call.
+
+## API Access
+
+| Protocol | Service/Method | Endpoint |
+|----------|----------------|----------|
+| **gRPC** | `MemoryService.Prime` | — |
+| **REST** | POST | `/v1/memories/prime` |
+
+## Request Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `entity_id` | string | Yes | Entity whose context to load. |
+| `max_memories` | int | No | Maximum total memories to return (default 20). |
+| `similarity_cue` | string | No | Optional cue for similarity component. If omitted, temporal-only blend. |
+
+## Response
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `results` | array | Memories ordered by blended relevance. |
+| `temporal_count` | int | Number of memories from temporal strategy. |
+| `similarity_count` | int | Number of memories from similarity strategy. |
+
+## Blending
+
+Prime uses a configurable blend of temporal and similarity recall. The ratio determines how much recent history vs. semantically relevant history is included. Typical use: 50/50 or 60/40 temporal/similarity for conversational agents.

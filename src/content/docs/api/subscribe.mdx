@@ -1,0 +1,30 @@
+---
+title: subscribe
+description: Stream relevant memories in real-time as new text arrives.
+---
+
+## Overview
+
+The `subscribe` operation streams relevant memories in real-time as new text arrives. It uses bidirectional gRPC streaming: the client sends text chunks (e.g., live transcription), and the server pushes memories that match the stream. This enables voice agents, live chat, and real-time assistants to surface context without polling.
+
+## API Access
+
+| Protocol | Service/Method | Endpoint |
+|----------|----------------|----------|
+| **gRPC** | `SubscribeService.Subscribe` | Bidirectional streaming |
+| **REST** | — | Not available (streaming-only) |
+
+## Streaming Lifecycle
+
+1. **Connect**: Client opens a bidirectional stream to `SubscribeService.Subscribe`.
+2. **Feed**: Client sends `SubscribePush` messages containing text chunks. Each chunk is processed for relevance against the entity's memories.
+3. **Push**: Server sends `SubscribePush` messages back with memories that exceed the confidence threshold. Pushes are asynchronous and may arrive out of order with respect to feed order.
+4. **CloseSubscription**: Client sends `CloseSubscription` when done. Server acknowledges and closes the stream.
+
+## Confidence Threshold
+
+Only memories with relevance above a configurable confidence threshold are pushed. Default is typically 0.7. Lower thresholds increase recall but may add noise; higher thresholds reduce noise but may miss relevant context.
+
+## SubscribePush Messages
+
+Each push contains: `memory`, `score`, `strategy` (e.g., similarity), and optional `chunk_offset` for correlating with the feed stream.

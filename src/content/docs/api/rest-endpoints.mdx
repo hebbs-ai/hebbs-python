@@ -1,0 +1,29 @@
+---
+title: REST Endpoints
+description: Complete HTTP REST API reference with methods, paths, and payloads.
+---
+
+## Overview
+
+HEBBS exposes a REST API on port 6381. All endpoints use JSON for request and response bodies. Base URL: `http://localhost:6381` (or your deployed host).
+
+## Endpoint Reference
+
+| Method | Path | Description | Request Body | Response Body |
+|--------|------|-------------|--------------|---------------|
+| POST | `/v1/memories` | Store a new memory | `content`, `importance`, `context`, `entity_id`, `edges` | `Memory` |
+| POST | `/v1/memories/recall` | Retrieve memories by cue and strategies | `cue`, `strategies`, `top_k`, `entity_id`, `scoring_weights` | `RecallResponse` |
+| PUT | `/v1/memories/{id}` | Revise an existing memory | `content`, `importance`, `context` | `Memory` |
+| POST | `/v1/memories/forget` | Delete memories by entity or IDs | `entity_id`, `memory_ids`, `criteria` | `ForgetResponse` |
+| POST | `/v1/memories/prime` | Pre-load session context | `entity_id`, `max_memories`, `similarity_cue` | `PrimeResponse` |
+| POST | `/v1/reflect` | Manually trigger reflection | `entity_id` (optional) | `ReflectResponse` |
+| GET | `/v1/insights` | Query consolidated insights | Query params: `entity_id`, `max_results` | `Insight[]` |
+| GET | `/health` | Liveness probe | — | Health status |
+| GET | `/ready` | Readiness probe | — | Readiness status |
+| GET | `/metrics` | Prometheus metrics | — | Text exposition format |
+
+## Notes
+
+- **subscribe** is gRPC-only (bidirectional streaming); no REST equivalent.
+- **reflect_policy** configuration may use PUT/PATCH to `/v1/reflect/policy` or equivalent; exact path depends on implementation.
+- All `/v1/*` endpoints return JSON. Use `Content-Type: application/json` for request bodies.

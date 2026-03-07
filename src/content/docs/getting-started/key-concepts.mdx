@@ -1,0 +1,36 @@
+---
+title: Key Concepts
+description: "Core mental model: memories, importance, entities, decay, recall strategies."
+---
+
+## Memories
+
+Memories are the core unit in HEBBS. Each memory has content (the text or payload) and metadata (timestamps, importance score, entity associations, tenant ID).
+
+## Importance
+
+Every memory has an importance score from 0.0 to 1.0. Higher scores indicate memories that should be prioritized during recall. Importance can be set explicitly or inferred by the reflection pipeline.
+
+## Entities
+
+Entities provide scoping and isolation. Memories can be associated with entities (e.g., a user, a conversation, a project). Recall can be scoped to specific entities for context-aware retrieval.
+
+## Tenants
+
+Tenants provide multi-tenant isolation. All data is partitioned by tenant ID. One HEBBS instance can serve multiple tenants with strict isolation.
+
+## Recall Strategies
+
+HEBBS supports four recall strategies: **similarity** (vector search), **recency** (time-ordered), **importance** (score-ordered), and **hybrid** (combines multiple signals).
+
+## Decay
+
+Memories decay over time. Less important or older memories are deprioritized. Decay parameters are configurable per tenant or globally.
+
+## Edges and Lineage
+
+Memories can be linked via edges. Lineage tracks relationships between memories (e.g., revisions, derivations) for audit and reasoning.
+
+## Reflection
+
+The reflection pipeline runs in the background. It analyzes memories, updates importance scores, and generates insights. LLM calls happen only in reflection—never on the hot path.

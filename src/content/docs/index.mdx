@@ -1,0 +1,72 @@
+---
+title: HEBBS Documentation
+description: The cognitive memory engine for AI agents. One binary. Sub-10ms recall.
+template: splash
+hero:
+  tagline: The memory engine for AI agents. One binary. Sub-10ms recall. Algorithms, not LLM wrappers.
+  actions:
+    - text: Quickstart (5 min)
+      link: /getting-started/quickstart/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/hebbs-ai/hebbs
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+<CardGrid>
+  <Card title="Getting Started" icon="rocket">
+    Install HEBBS, start the server, and store your first memory in under 5
+    minutes.
+
+    [Get started →](/getting-started/quickstart/)
+
+  </Card>
+
+  <Card title="Python SDK" icon="seti:python">
+    Async Python client with a clean, Pythonic API. No protobuf in the public
+    surface.
+
+    [Python docs →](/python/overview/)
+
+  </Card>
+
+  <Card title="API Reference" icon="open-book">
+    9 operations across 3 groups: Write, Read, and Consolidation. gRPC and
+    REST.
+
+    [API reference →](/api/overview/)
+
+  </Card>
+
+  <Card title="Cookbooks" icon="puzzle">
+    Production-ready tutorials: sales agents, support bots, GDPR compliance,
+    real-time memory surfacing.
+
+    [Browse cookbooks →](/cookbooks/)
+
+  </Card>
+</CardGrid>
+
+## Why HEBBS?
+
+Every memory solution in the market shares the same architecture: Python glue, an external vector database, and LLM calls in the operational path. They converge to the same features because they draw from the same well -- and they share the same hard ceiling on latency, correctness, and operational simplicity.
+
+HEBBS plays a different game. Cognitive operations are **algorithms inside a single embedded engine**, not LLM-call wrappers over a distributed stack:
+
+- **Sub-10ms p99 recall** at millions of memories -- no network hop to an external vector DB
+- **Crash-safe writes** via RocksDB WAL and atomic WriteBatch -- kill the process at any point and recover to a consistent state
+- **Decay, importance, and reinforcement** computed as math, not LLM prompts
+- **Four recall strategies** (similarity, temporal, causal, analogical) as bounded index traversals
+- **One binary, zero external dependencies** -- deploy, monitor, and reason about a single process
+
+## Core Operations
+
+| Group | Operations | Purpose |
+|-------|-----------|---------|
+| **Write** | `remember`, `revise`, `forget` | Store, update, and prune memories |
+| **Read** | `recall`, `prime`, `subscribe` | Retrieve context via multiple strategies |
+| **Consolidate** | `reflect_policy`, `reflect`, `insights` | Background learning and knowledge synthesis |

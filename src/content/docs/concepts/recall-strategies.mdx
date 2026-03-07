@@ -1,0 +1,52 @@
+---
+title: Recall Strategies
+description: "Four ways to recall memories: similarity, temporal, causal, and analogical."
+---
+
+HEBBS supports four recall strategies. Each targets a different access pattern. Choose the strategy (or combine them) based on what the agent needs: semantic match, recency, cause-and-effect, or structural analogy.
+
+## Similarity
+
+**What it does**: Returns memories whose content is semantically similar to the query. Uses vector embeddings and approximate nearest-neighbor search.
+
+**When to use it**: When the agent needs context that *sounds like* or *means* something close to the current situation. "What did we discuss about pricing?" "Find memories related to this customer complaint."
+
+**How it works internally**: The query is embedded with the same model used at write time. HNSW (Hierarchical Navigable Small World) index performs approximate k-NN search. Results are ranked by cosine similarity. Time complexity is O(log n) with bounded `ef_search` for predictable latency.
+
+**Example use case**: A sales agent receives a new lead. Similarity recall fetches past conversations with similar companies or topics to prime context before the call.
+
+## Temporal
+
+**What it does**: Returns memories in a time range, ordered by recency (or optionally by importance within the range).
+
+**When to use it**: When the agent needs "what happened recently" or "what happened between X and Y." Chronology matters more than semantic match.
+
+**How it works internally**: A B-tree index on `(entity_id, created_at)` supports efficient range scans. The query specifies `start_time` and `end_time`. Results are streamed in time order. Time complexity is O(log n + k) where k is the number of memories in the range.
+
+**Example use case**: A support agent needs the last 10 interactions with this customer. Temporal recall fetches the most recent memories in order.
+
+## Causal
+
+**What it does**: Returns memories connected by causal edges (CausedBy, FollowedBy). Traverses the graph from a seed memory to find causes, effects, or chains.
+
+**When to use it**: When the agent needs to reason about *why* something happened or *what followed* from an event. "What led to this decision?" "What happened after the user said X?"
+
+**How it works internally**: Starts from one or more seed memory IDs. Performs bounded graph traversal (max depth configurable) following CausedBy and FollowedBy edges. Results are ranked by graph distance and recency. Time complexity is O(branching_factor ^ max_depth), bounded by configuration.
+
+**Example use case**: A research assistant traces how a conclusion was reached. Causal recall walks backward from the conclusion to the supporting evidence and reasoning steps.
+
+## Analogical
+
+**What it does**: Finds memories that share structural patterns across domains. "This situation is like X in a different context."
+
+**When to use it**: When the agent needs cross-domain transfer: lessons from one project applied to another, or patterns that repeat across customers.
+
+**How it works internally**: Structural pattern matching over memory graphs. Extracts relational structure (entities, actions, outcomes) and finds isomorphic or similar patterns in other memories. More expensive than similarity; typically used with smaller candidate sets or as a secondary pass.
+
+**Example use case**: A product manager asks "Have we seen a similar launch failure before?" Analogical recall finds past launches with comparable failure patterns, even if the domains differ.
+
+## Multi-Strategy Recall and Composite Scoring
+
+You can invoke multiple strategies in a single request or combine results client-side. HEBBS also supports composite scoring: e.g., similarity score × recency decay × importance. This lets you bias toward "recent, important, and semantically relevant" without running separate queries.
+
+When combining strategies, consider latency: similarity and temporal are fastest; causal and analogical add graph traversal cost. Use strategy-specific limits (`top_k`, `max_depth`) to stay within latency budgets.

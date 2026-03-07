@@ -1,0 +1,34 @@
+---
+title: insights
+description: Query consolidated knowledge produced by the reflection pipeline.
+---
+
+## Overview
+
+The `insights` operation queries consolidated knowledge produced by the reflection pipeline. Insights are high-level summaries or patterns derived from raw episodes. Each insight has lineage edges back to source memories, enabling provenance and "why did the system think this?" queries.
+
+## API Access
+
+| Protocol | Service/Method | Endpoint |
+|----------|----------------|----------|
+| **gRPC** | `ReflectService.GetInsights` | — |
+| **REST** | GET | `/v1/insights` |
+
+## Request Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `entity_id` | string | No | Scope to this entity's insights. Omit for global. |
+| `max_results` | int | No | Maximum number of insights to return (default 20). |
+
+## Response
+
+Returns an array of Insight memories. Each insight includes:
+
+- `id`, `content`, `importance`, `context`, `entity_id`
+- `edges`: `InsightFrom` edges linking to source episode IDs
+- `created_at`, `updated_at`, `kind: Insight`
+
+## Lineage
+
+Insights track provenance via `InsightFrom` edges. Use these to trace back to the episodes that contributed to the insight, supporting explainability and audit.

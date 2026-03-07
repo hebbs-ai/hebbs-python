@@ -1,0 +1,55 @@
+---
+title: Introduction
+description: "HEBBS is a single-binary cognitive memory engine for AI agents -- algorithms, not LLM wrappers."
+---
+
+HEBBS is a cognitive memory engine for AI agents. It ships as a single Rust binary with embedded storage, local ONNX embeddings, and sub-10ms p99 recall at millions of memories. No external databases. No LLM calls on the hot path. One process, one data directory, one API.
+
+## The Real Problem
+
+Every memory solution in the market draws from the same well: Python glue, an external vector database, and LLM calls in the operational path. They may add entity extraction, temporal awareness, importance scoring, or graph relationships -- but the underlying architecture is the same, and it imposes a hard ceiling:
+
+- **Latency floor.** A network hop to Qdrant or Pinecone costs 2-20ms per read. An LLM call to extract entities costs 200-2000ms per write. In tight agent loops that call memory 10-50 times per turn, this compounds.
+- **Correctness gap.** Nobody in this space talks about crash safety. If an agent process dies mid-write, is the memory state consistent? When agents manage anything consequential -- enterprise support, financial workflows, healthcare triage -- "we lost some memories" is unacceptable.
+- **Operational complexity.** Running most memory solutions in production means operating a Python runtime, a vector database, a graph database, an LLM API connection, and a message queue. Each is a failure mode.
+- **Feature convergence.** Because everyone builds on the same stack, everyone converges to the same feature set. The marginal cost of copying a feature is near zero when your architecture is "call an LLM and write to Qdrant."
+
+These aren't feature gaps. They're architectural constraints. You can't fix them without rewriting the storage layer from scratch.
+
+## How HEBBS Is Different
+
+HEBBS implements cognitive operations as **algorithms inside the engine**, not as LLM-call wrappers over a distributed stack:
+
+- **Temporal decay** is an exponential function, not a summarization prompt. Memories lose importance over time; frequently recalled memories get reinforced through Hebbian learning.
+- **Importance scoring** is computed at write time and updated on every recall -- no LLM rating required.
+- **Four recall strategies** (similarity, temporal, causal, analogical) are index traversals with bounded complexity, not LLM-mediated reasoning.
+- **Reflection** is the only place an LLM appears, and it runs exclusively in the background. It clusters related memories, proposes insights, validates them, and stores the results -- all async, never blocking a read or write.
+- **Crash safety** comes from RocksDB's write-ahead log and atomic WriteBatch operations. Kill the process between any two instructions and the engine recovers to a consistent state.
+
+This is an infrastructure play, not a features play. The same way Redis didn't win by having more features than Memcached -- it won by being the correct abstraction at the correct layer with latency guarantees nobody else could match.
+
+## Architecture at a Glance
+
+| Layer | What it does | Why it matters |
+|-------|-------------|----------------|
+| **gRPC + HTTP API** | 9 operations across write, read, and consolidation | Single API surface, no protocol translation |
+| **ONNX Embeddings** | Local BGE-small-en-v1.5 (swappable) | No network hop for embeddings, air-gap capable |
+| **HNSW Index** | Per-tenant similarity search | Sub-10ms recall at millions of memories |
+| **RocksDB Storage** | Crash-safe persistence with WAL | Atomic multi-index updates, no data loss |
+| **Decay Sweep** | Background importance decay | Automatic pruning, bounded memory growth |
+| **Reflection Pipeline** | Async LLM-powered insight consolidation | Background learning without hot-path latency |
+
+Everything runs in a single process. No sidecars. No external dependencies at runtime.
+
+## Who Is HEBBS For
+
+- **AI agent builders** who need memory that keeps up with tight inference loops -- not memory that adds hundreds of milliseconds per call.
+- **Production teams** shipping agents that manage real workflows, where crash safety, multi-tenant isolation, and operational simplicity are non-negotiable.
+- **Air-gapped and on-prem deployments** where data cannot leave the network. HEBBS with local ONNX embeddings and Ollama for reflection runs fully offline.
+- **Infrastructure teams** who want a single binary they can deploy, monitor, and reason about -- not a distributed system of Python services.
+
+## What's Next
+
+Ready to get started? Head to the [Quickstart](/getting-started/quickstart/) to install HEBBS and store your first memory in under 5 minutes.
+
+Or read [Key Concepts](/getting-started/key-concepts/) to understand the memory model, recall strategies, and reflection pipeline before diving in.

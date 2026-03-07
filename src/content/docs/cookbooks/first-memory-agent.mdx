@@ -1,0 +1,141 @@
+---
+title: "Your First Memory Agent"
+description: "Build a simple memory-augmented agent from scratch."
+---
+
+This cookbook walks you through building a minimal AI agent that uses HEBBS for persistent memory. By the end, you'll have an agent that remembers across conversations and retrieves relevant context automatically.
+
+## Prerequisites
+
+- HEBBS server running locally (`localhost:50051`)
+- Python SDK installed: `pip install hebbs`
+
+## Step 1: Connect to HEBBS
+
+```python
+import asyncio
+from hebbs import HebbsClient
+
+async def main():
+    async with HebbsClient.connect("localhost:50051") as client:
+        health = await client.health()
+        print(f"Connected to HEBBS {health.version} ({health.status})")
+
+asyncio.run(main())
+```
+
+## Step 2: Store Memories
+
+Let's store a few memories representing a conversation with a customer:
+
+```python
+from hebbs import MemoryKind
+
+memories_to_store = [
+    ("Met with Acme Corp CEO. They're expanding to Europe.", MemoryKind.EPISODIC),
+    ("Acme Corp's budget for Q2 is $500K.", MemoryKind.SEMANTIC),
+    ("Always send Acme Corp proposals in PDF format.", MemoryKind.PROCEDURAL),
+    ("Acme's CTO is skeptical about cloud solutions.", MemoryKind.EPISODIC),
+    ("GDPR compliance is a hard requirement for Acme.", MemoryKind.SEMANTIC),
+]
+
+for content, kind in memories_to_store:
+    memory = await client.remember(
+        content=content,
+        entity="acme-corp",
+        kind=kind,
+    )
+    print(f"Stored [{memory.kind.name}]: {memory.content[:50]}...")
+```
+
+## Step 3: Recall with Different Strategies
+
+### Similarity Recall
+
+Find memories semantically related to a query:
+
+```python
+results = await client.recall(
+    query="What do I need to know about Acme's European plans?",
+    entity="acme-corp",
+    strategy="similarity",
+    top_k=3,
+)
+
+print("Similarity recall:")
+for r in results.memories:
+    print(f"  [{r.score:.3f}] {r.memory.content}")
+```
+
+### Temporal Recall
+
+Find the most recent memories:
+
+```python
+temporal = await client.recall(
+    query="What happened recently with Acme?",
+    entity="acme-corp",
+    strategy="temporal",
+    top_k=3,
+)
+
+print("\nTemporal recall:")
+for r in temporal.memories:
+    print(f"  [{r.memory.created_at}] {r.memory.content}")
+```
+
+## Step 4: Build the Agent Loop
+
+Combine storage and recall into a simple agent:
+
+```python
+async def agent_turn(client, entity, user_message):
+    # Recall relevant context
+    context = await client.recall(
+        query=user_message,
+        entity=entity,
+        strategy="similarity",
+        top_k=3,
+        threshold=0.6,
+    )
+
+    # Format context for the LLM
+    memory_context = "\n".join(
+        f"- {r.memory.content}" for r in context.memories
+    )
+
+    print(f"Retrieved {len(context.memories)} relevant memories")
+    print(f"Context:\n{memory_context}")
+
+    # Here you would call your LLM with the context + user message
+    # response = await llm.generate(prompt=f"Context:\n{memory_context}\n\nUser: {user_message}")
+
+    # Store the interaction as a new memory
+    await client.remember(
+        content=f"User asked: {user_message}",
+        entity=entity,
+        kind=MemoryKind.EPISODIC,
+    )
+```
+
+## Step 5: Display Results
+
+```python
+async with HebbsClient.connect("localhost:50051") as client:
+    # Store initial memories
+    # ... (step 2)
+
+    # Run agent turns
+    await agent_turn(client, "acme-corp", "What should I know before the Acme meeting?")
+    await agent_turn(client, "acme-corp", "How should I address their cloud concerns?")
+
+    # Check total memory count
+    count = await client.count("acme-corp")
+    print(f"\nTotal memories for acme-corp: {count}")
+```
+
+## What's Next
+
+- [Multi-Strategy Recall](/cookbooks/multi-strategy-recall/) — understand when to use each recall strategy
+- [Entity-Scoped Memory](/cookbooks/entity-scoped-memory/) — manage memories for multiple customers
+- [Voice Sales Agent](/cookbooks/voice-sales-agent/) — build a full sales agent with HEBBS

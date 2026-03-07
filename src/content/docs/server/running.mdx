@@ -1,0 +1,35 @@
+---
+title: Running the Server
+description: Start hebbs-server, verify health, and understand default ports.
+---
+
+## Starting the Server
+
+Start the HEBBS server with default configuration:
+
+```bash
+hebbs-server
+```
+
+## Default Ports
+
+- **gRPC:** 6380
+- **HTTP/REST:** 6381
+
+## Health Check
+
+Verify the server is running:
+
+```bash
+curl http://localhost:6381/v1/health
+```
+
+## Basic Config File
+
+Create a `hebbs.toml` file to customize server behavior:
+
+```toml
+[server]
+grpc_port = 6380
+http_port = 6381
+```

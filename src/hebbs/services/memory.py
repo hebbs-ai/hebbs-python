@@ -98,6 +98,7 @@ def _proto_to_memory(m: Any) -> Memory:
         decay_score=m.decay_score,
         kind=_MEMORY_KIND_REVERSE.get(m.kind, MemoryKind.UNSPECIFIED),
         embedding=list(m.embedding),
+        source_memory_ids=[bytes(sid) for sid in m.source_memory_ids],
     )
 
 

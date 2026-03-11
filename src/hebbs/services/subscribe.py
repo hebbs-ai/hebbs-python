@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from typing import Any, AsyncIterator
 
 from hebbs._generated import hebbs_pb2, hebbs_pb2_grpc
@@ -58,6 +59,27 @@ class Subscription:
             pass
         if self._grpc_call is not None and hasattr(self._grpc_call, "cancel"):
             self._grpc_call.cancel()
+
+    async def listen(self, timeout: float = 5.0, max_pushes: int | None = None) -> list[SubscribePush]:
+        """Collect pushes for up to ``timeout`` seconds.
+
+        Returns as soon as the stream ends, the timeout expires, or
+        ``max_pushes`` have been collected (whichever comes first).
+        """
+        pushes: list[SubscribePush] = []
+        deadline = asyncio.get_event_loop().time() + timeout
+        while max_pushes is None or len(pushes) < max_pushes:
+            remaining = deadline - asyncio.get_event_loop().time()
+            if remaining <= 0:
+                break
+            try:
+                push = await asyncio.wait_for(self.__anext__(), timeout=remaining)
+                pushes.append(push)
+            except asyncio.TimeoutError:
+                break
+            except StopAsyncIteration:
+                break
+        return pushes
 
     def __aiter__(self) -> AsyncIterator[SubscribePush]:
         return self

@@ -607,17 +607,11 @@ async def test_subscribe_feed_close() -> str:
         log.response("feed", "accepted")
 
         log.info("listening for pushes (3s timeout)...")
-        pushes = []
-        try:
-            async for push in sub.listen(timeout=3.0):
-                pushes.append(push)
-                log.detail(
-                    f"push[{len(pushes)-1}]: confidence={push.confidence:.4f}, "
-                    f"seq={push.sequence_number}, content=\"{_trunc(push.memory.content, 50)}\"")
-                if len(pushes) >= 5:
-                    break
-        except asyncio.TimeoutError:
-            pass
+        pushes = await sub.listen(timeout=3.0, max_pushes=5)
+        for i, push in enumerate(pushes):
+            log.detail(
+                f"push[{i}]: confidence={push.confidence:.4f}, "
+                f"seq={push.sequence_number}, content=\"{_trunc(push.memory.content, 50)}\"")
         log.response("listen", f"{len(pushes)} pushes received")
 
         log.call("sub.close")

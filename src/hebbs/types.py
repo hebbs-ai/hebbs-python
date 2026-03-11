@@ -54,6 +54,7 @@ class Memory:
     decay_score: float = 0.0
     kind: MemoryKind = MemoryKind.EPISODE
     embedding: list[float] = field(default_factory=list)
+    source_memory_ids: list[bytes] = field(default_factory=list)
 
 
 @dataclass

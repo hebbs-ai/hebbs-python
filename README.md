@@ -2,54 +2,63 @@
 
 Teaches Claude how to use [HEBBS](https://hebbs.dev) — a local-first cognitive memory engine that stores, indexes, and retrieves knowledge.
 
-## Install
+## Install the skill
 
-### Claude.ai
+### OpenClaw
 
-1. Download or clone this repo
-2. Zip the `hebbs/` folder
-3. Go to Settings > Capabilities > Skills > Upload the ZIP
+```bash
+git clone https://github.com/hebbs-ai/hebbs-skill.git /tmp/hebbs-skill && cp -r /tmp/hebbs-skill/hebbs ~/.openclaw/skills/hebbs && rm -rf /tmp/hebbs-skill
+```
+
+Restart your OpenClaw session to pick up the skill.
 
 ### Claude Code
 
 ```bash
-# Clone into your skills directory
-git clone https://github.com/hebbs-ai/hebbs-skill.git ~/.claude/skills/hebbs-skill
+git clone https://github.com/hebbs-ai/hebbs-skill.git /tmp/hebbs-skill && cp -r /tmp/hebbs-skill/hebbs ~/.claude/skills/hebbs && rm -rf /tmp/hebbs-skill
 ```
 
-### OpenClaw
+### Claude.ai
 
-The skill is discoverable via OpenClaw's skill registry. OpenClaw will auto-install HEBBS via Homebrew if needed.
+1. Download this repo as a ZIP
+2. Extract it, then zip just the `hebbs/` folder
+3. Go to Settings > Capabilities > Skills > Upload the ZIP
 
-## Prerequisites
+## Install HEBBS
 
-HEBBS must be installed and the server must be running.
+The skill requires `hebbs-server` and `hebbs-cli` binaries.
 
-**Install:**
+**macOS (Homebrew):**
 
 ```bash
 brew install hebbs-ai/tap/hebbs
 ```
 
-Or:
+**Any platform (Linux, macOS):**
 
 ```bash
 curl -sSf https://hebbs.ai/install | sh
 ```
 
-**Start the server:**
+## Start the server
 
 ```bash
-hebbs-server
+HEBBS_AUTH_ENABLED=false hebbs-server --data-dir ~/.hebbs/data
 ```
 
-## What the skill enables
+To run in the background:
 
-- **Remember** facts, decisions, preferences, and observations
-- **Recall** relevant context using similarity, temporal, causal, or analogical strategies
-- **Reflect** to consolidate raw memories into higher-order insights
-- **Forget** outdated or irrelevant memories
-- **Prime** context at the start of conversations
+```bash
+HEBBS_AUTH_ENABLED=false nohup hebbs-server --data-dir ~/.hebbs/data > /tmp/hebbs-server.log 2>&1 &
+```
+
+Data is stored in `~/.hebbs/data`. The server listens on gRPC port 6380 and HTTP port 6381.
+
+## Verify
+
+```bash
+hebbs-cli recall "test" --format json
+```
 
 ## Links
 

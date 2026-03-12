@@ -43,13 +43,13 @@ curl -sSf https://hebbs.ai/install | sh
 ## Start the server
 
 ```bash
-HEBBS_AUTH_ENABLED=false hebbs-server --data-dir ~/.hebbs/data
+HEBBS_AUTH_ENABLED=false hebbs-server start --data-dir ~/.hebbs/data
 ```
 
 To run in the background:
 
 ```bash
-HEBBS_AUTH_ENABLED=false nohup hebbs-server --data-dir ~/.hebbs/data > /tmp/hebbs-server.log 2>&1 &
+HEBBS_AUTH_ENABLED=false nohup hebbs-server start --data-dir ~/.hebbs/data > /tmp/hebbs-server.log 2>&1 &
 ```
 
 Data is stored in `~/.hebbs/data`. The server listens on gRPC port 6380 and HTTP port 6381.

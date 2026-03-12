@@ -7,7 +7,7 @@ Teaches Claude how to use [HEBBS](https://hebbs.dev) — a local-first cognitive
 ### OpenClaw
 
 ```bash
-git clone https://github.com/hebbs-ai/hebbs-skill.git /tmp/hebbs-skill && cp -r /tmp/hebbs-skill/hebbs ~/.openclaw/skills/hebbs && rm -rf /tmp/hebbs-skill
+git clone https://github.com/hebbs-ai/hebbs-skill.git ~/.openclaw/skills/hebbs
 ```
 
 Restart your OpenClaw session to pick up the skill.
@@ -15,14 +15,13 @@ Restart your OpenClaw session to pick up the skill.
 ### Claude Code
 
 ```bash
-git clone https://github.com/hebbs-ai/hebbs-skill.git /tmp/hebbs-skill && cp -r /tmp/hebbs-skill/hebbs ~/.claude/skills/hebbs && rm -rf /tmp/hebbs-skill
+git clone https://github.com/hebbs-ai/hebbs-skill.git ~/.claude/skills/hebbs
 ```
 
 ### Claude.ai
 
 1. Download this repo as a ZIP
-2. Extract it, then zip just the `hebbs/` folder
-3. Go to Settings > Capabilities > Skills > Upload the ZIP
+2. Go to Settings > Capabilities > Skills > Upload the ZIP
 
 ## Install HEBBS
 
@@ -43,21 +42,21 @@ curl -sSf https://hebbs.ai/install | sh
 ## Start the server
 
 ```bash
+brew services start hebbs
+```
+
+Or manually:
+
+```bash
 HEBBS_AUTH_ENABLED=false hebbs-server start --data-dir ~/.hebbs/data
 ```
 
-To run in the background:
-
-```bash
-HEBBS_AUTH_ENABLED=false nohup hebbs-server start --data-dir ~/.hebbs/data > /tmp/hebbs-server.log 2>&1 &
-```
-
-Data is stored in `~/.hebbs/data`. The server listens on gRPC port 6380 and HTTP port 6381.
+The server listens on gRPC port 6380 and HTTP port 6381.
 
 ## Verify
 
 ```bash
-hebbs-cli recall "test" --format json
+hebbs-cli status --format json
 ```
 
 ## Links

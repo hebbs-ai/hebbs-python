@@ -1,48 +1,5 @@
-# OS junk
-.DS_Store
-Thumbs.db
-
-# Secrets and env files
-.env
-.env.*
-
-# IDE/editor local state
-.vscode/
-.idea/
-.cursor/projects/
-.cursor/plans/
-
-# Logs
-*.log
-logs/
-
-# Rust
-target/
-**/target/
-
-# Node/TypeScript
 node_modules/
-**/node_modules/
 dist/
-**/dist/
-
-# Python
-.venv/
-**/.venv/
-__pycache__/
-**/__pycache__/
-*.egg-info/
-
-# Runtime data and local databases
-hebbs-data/
-**/hebbs-data/
-*.sst
-*.ldb
-MANIFEST-*
-OPTIONS-*
-CURRENT
-LOCK
-LOG
-
-# ML model binaries
-*.onnx
+.astro/
+.DS_Store
+*.log

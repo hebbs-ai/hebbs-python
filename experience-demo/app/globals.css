@@ -1,0 +1,167 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-deep: #0a0a12;
+  --bg-mid: #0d0d1a;
+  --bg-dark: #080815;
+  --glass-panel: rgba(15, 15, 25, 0.6);
+  --glass-card: rgba(20, 20, 35, 0.5);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-active: rgba(255, 255, 255, 0.15);
+  --text-primary: #ffffff;
+  --text-body: #c8ccd4;
+  --text-dim: rgba(255, 255, 255, 0.4);
+  --op-remember: #22c55e;
+  --op-recall: #3b82f6;
+  --op-reflect: #f59e0b;
+  --op-revise: #ef4444;
+  --op-forget: #6b7280;
+  --op-prime: #8b5cf6;
+  --color-insight: #ffc857;
+  --color-memory: #06b6d4;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--bg-deep), var(--bg-mid), var(--bg-dark));
+  color: var(--text-body);
+}
+
+#__next {
+  height: 100%;
+}
+
+.glass-panel {
+  background: var(--glass-panel);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.glass-card {
+  background: var(--glass-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.glass-card[data-operation='remember'] {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 20px rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.15);
+}
+
+.glass-card[data-operation='recall'] {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 20px rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.15);
+}
+
+.glass-card[data-operation='reflect'] {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 20px rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.15);
+}
+
+.glass-card[data-operation='revise'] {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 20px rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.15);
+}
+
+.glass-card[data-operation='prime'] {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 20px rgba(139, 92, 246, 0.12);
+  border-color: rgba(139, 92, 246, 0.15);
+}
+
+.glass-card[data-operation='forget'] {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 12px rgba(107, 114, 128, 0.1);
+  border-color: rgba(107, 114, 128, 0.12);
+}
+
+.latency-fast {
+  text-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+}
+
+.insight-star {
+  filter: drop-shadow(0 0 6px rgba(255, 200, 87, 0.4));
+}
+
+.memory-dot {
+  box-shadow: 0 0 8px rgba(6, 182, 212, 0.3);
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.bg-mesh {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(6, 182, 212, 0.03) 0%, transparent 50%),
+    linear-gradient(135deg, var(--bg-deep), var(--bg-mid), var(--bg-dark));
+  background-size: 200% 200%;
+  animation: meshDrift 60s ease-in-out infinite;
+}
+
+@keyframes continuePulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+  }
+}
+
+.continue-pulse {
+  animation: continuePulse 2s ease-in-out infinite;
+}
+
+@keyframes meshDrift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  25% {
+    background-position: 50% 0%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  75% {
+    background-position: 50% 100%;
+  }
+}

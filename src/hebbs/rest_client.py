@@ -331,6 +331,25 @@ class HebbsRestClient:
         async with self._session.post("/v1/upload", data=data) as resp:
             return await resp.json()
 
+    async def delete_file(self, remote_path: str) -> dict[str, Any]:
+        """Delete a file from the workspace and forget its memories.
+
+        The file is removed from the server. The engine detects the
+        deletion and forgets all memories that were extracted from it.
+
+        Args:
+            remote_path: Path of the file in the workspace vault,
+                e.g. ``"entities/acme-corp/old-notes.md"``.
+
+        Returns:
+            Dict with ``deleted`` path and confirmation message.
+
+        Example::
+
+            await hb.delete_file("entities/acme/old-notes.md")
+        """
+        return await self._request("DELETE", f"/v1/files/{remote_path}")
+
     async def index(self, path: str) -> dict[str, Any]:
         """Upload all files in a directory for indexing.
 

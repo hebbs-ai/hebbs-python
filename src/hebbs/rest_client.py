@@ -331,6 +331,27 @@ class HebbsRestClient:
         async with self._session.post("/v1/upload", data=data) as resp:
             return await resp.json()
 
+    async def file_status(self, remote_path: str) -> dict[str, Any]:
+        """Get indexing status for a specific file.
+
+        Args:
+            remote_path: Path of the file in the workspace vault,
+                e.g. ``"entities/acme-corp/notes.md"``.
+
+        Returns:
+            Dict with ``path``, ``status`` (``"indexed"``, ``"indexing"``,
+            ``"pending"``, ``"deleted"``, ``"not_found"``),
+            ``sections``, ``sections_synced``, ``memories``,
+            and ``last_indexed``.
+
+        Example::
+
+            status = await hb.file_status("entities/acme/notes.md")
+            if status["status"] == "indexed":
+                print(f"Ready: {status['memories']} memories")
+        """
+        return await self._request("GET", f"/v1/files/{remote_path}/status")
+
     async def delete_file(self, remote_path: str) -> dict[str, Any]:
         """Delete a file from the workspace and forget its memories.
 

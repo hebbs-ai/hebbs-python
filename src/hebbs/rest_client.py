@@ -294,8 +294,48 @@ class HebbsRestClient:
             engine=data.get("engine", ""),
         )
 
+    async def upload(
+        self,
+        local_path: str,
+        remote_path: str | None = None,
+    ) -> dict[str, Any]:
+        """Upload a single file for indexing.
+
+        Args:
+            local_path: Path to the local file to upload.
+            remote_path: Destination path in the workspace vault.
+                If not provided, the filename is used.
+                Use this to control folder structure, e.g.
+                ``"entities/acme-corp/meeting-notes.md"``.
+
+        Returns:
+            Dict with ``uploaded`` count and ``files`` list.
+
+        Example::
+
+            await hb.upload("./notes.md", "entities/acme/notes.md")
+        """
+        import pathlib
+
+        p = pathlib.Path(local_path)
+        if not p.is_file():
+            raise ValueError(f"File not found: {local_path}")
+
+        if not self._session:
+            raise HebbsConnectionError("Not connected")
+
+        name = remote_path or p.name
+        data = aiohttp.FormData()
+        data.add_field("files", open(p, "rb"), filename=name)
+
+        async with self._session.post("/v1/upload", data=data) as resp:
+            return await resp.json()
+
     async def index(self, path: str) -> dict[str, Any]:
-        """Upload files for indexing.
+        """Upload all files in a directory for indexing.
+
+        Recursively finds ``.md``, ``.txt``, and ``.pdf`` files.
+        Unchanged files are skipped on the server via checksum comparison.
 
         Args:
             path: Local directory path containing files to upload.

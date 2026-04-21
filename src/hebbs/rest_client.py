@@ -294,88 +294,8 @@ class HebbsRestClient:
             engine=data.get("engine", ""),
         )
 
-    async def upload(
-        self,
-        local_path: str,
-        remote_path: str | None = None,
-    ) -> dict[str, Any]:
-        """Upload a single file for indexing.
-
-        Args:
-            local_path: Path to the local file to upload.
-            remote_path: Destination path in the workspace vault.
-                If not provided, the filename is used.
-                Use this to control folder structure, e.g.
-                ``"entities/acme-corp/meeting-notes.md"``.
-
-        Returns:
-            Dict with ``uploaded`` count and ``files`` list.
-
-        Example::
-
-            await hb.upload("./notes.md", "entities/acme/notes.md")
-        """
-        import pathlib
-
-        p = pathlib.Path(local_path)
-        if not p.is_file():
-            raise ValueError(f"File not found: {local_path}")
-
-        if not self._session:
-            raise HebbsConnectionError("Not connected")
-
-        name = remote_path or p.name
-        data = aiohttp.FormData()
-        data.add_field("files", open(p, "rb"), filename=name)
-
-        async with self._session.post("/v1/upload", data=data) as resp:
-            return await resp.json()
-
-    async def file_status(self, remote_path: str) -> dict[str, Any]:
-        """Get indexing status for a specific file.
-
-        Args:
-            remote_path: Path of the file in the workspace vault,
-                e.g. ``"entities/acme-corp/notes.md"``.
-
-        Returns:
-            Dict with ``path``, ``status`` (``"indexed"``, ``"indexing"``,
-            ``"pending"``, ``"deleted"``, ``"not_found"``),
-            ``sections``, ``sections_synced``, ``memories``,
-            and ``last_indexed``.
-
-        Example::
-
-            status = await hb.file_status("entities/acme/notes.md")
-            if status["status"] == "indexed":
-                print(f"Ready: {status['memories']} memories")
-        """
-        return await self._request("GET", f"/v1/files/{remote_path}/status")
-
-    async def delete_file(self, remote_path: str) -> dict[str, Any]:
-        """Delete a file from the workspace and forget its memories.
-
-        The file is removed from the server. The engine detects the
-        deletion and forgets all memories that were extracted from it.
-
-        Args:
-            remote_path: Path of the file in the workspace vault,
-                e.g. ``"entities/acme-corp/old-notes.md"``.
-
-        Returns:
-            Dict with ``deleted`` path and confirmation message.
-
-        Example::
-
-            await hb.delete_file("entities/acme/old-notes.md")
-        """
-        return await self._request("DELETE", f"/v1/files/{remote_path}")
-
     async def index(self, path: str) -> dict[str, Any]:
-        """Upload all files in a directory for indexing.
-
-        Recursively finds ``.md``, ``.txt``, and ``.pdf`` files.
-        Unchanged files are skipped on the server via checksum comparison.
+        """Upload files for indexing.
 
         Args:
             path: Local directory path containing files to upload.

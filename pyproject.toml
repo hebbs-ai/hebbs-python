@@ -56,7 +56,7 @@ hebbs-demo = "demo.cli:main"
 [project.urls]
 Homepage = "https://hebbs.ai"
 Repository = "https://github.com/hebbs-ai/hebbs-python"
-Documentation = "https://docs.hebbs.ai"
+Documentation = "https://memdocs.hebbs.ai"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/hebbs", "demo"]
